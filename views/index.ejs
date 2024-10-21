@@ -3,46 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Renter Dashboard</title>
-
+    <title>TO Do List</title>
     <!-- Corrected paths for stylesheets -->
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/style.css">
-
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4; /* Light background for contrast */
+            color: #333; /* Neutral text color */
+            margin: 0;
+            padding: 20px;
+        }
+
+        .neon-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .neon-header h2 {
+            color: #007BFF; /* Subtle blue color */
+            transition: color 0.3s;
+        }
+
+        .neon-header h2:hover {
+            color: #0056b3; /* Darker blue on hover */
+        }
+
+        .card {
+            background-color: #fff; /* White background for the card */
+            border: 1px solid #ddd; /* Light border */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        .card-header {
+            background-color: #f8f9fa; /* Light gray for card header */
+            font-weight: bold;
+        }
+
+        .text-neon {
+            color: #007BFF; /* Subtle blue color for labels */
+        }
+
+        .btn-neon {
+            background-color: #007BFF; /* Blue button */
+            color: #fff; /* White text */
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s; /* Smooth background color change */
+        }
+
+        .btn-neon:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+            z-index: -1; /* Keep background behind content */
+            opacity: 0.2; /* Light opacity for subtle effect */
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Neon Header -->
+    <!-- Header -->
     <div class="neon-header">
-        <h2>Renter Dashboard</h2>
+        <h2>Add Work to do in To-Do list</h2>
     </div>
-
     <div class="container mt-5">
-        <!-- Glassmorphic Card for Form -->
-        <div class="card glass-card mt-4">
+        <!-- Card for Form -->
+        <div class="card mt-4">
             <div class="card-header text-neon">
-                <h5>Add New Item to Rent</h5>
+                <h5>Add New Item To-Do</h5>
             </div>
             <div class="card-body">
                 <form id="addItemForm">
-                    <div class="form-group mb-3">
-                        <label for="itemName" class="text-neon">Item Name</label>
-                        <input type="text" class="form-control neon-input" id="itemName" placeholder="Enter item name" required>
+                    <div class="form-group mb-3 row">
+                        <!-- Name field -->
+                        <label for="itemName" class="text-neon col-2">Name</label>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="itemName" placeholder="Enter item name" required>
+                        </div>
+                        <!-- Time field -->
+                        <div class="col-3">
+                            <input type="time" class="form-control" id="itemTime" required>
+                        </div>
+                        <!-- Date field -->
+                        <div class="col-3">
+                            <input type="date" class="form-control" id="itemDate" required>
+                        </div>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="itemDescription" class="text-neon">Item Description</label>
-                        <textarea class="form-control neon-input" id="itemDescription" rows="3" placeholder="Enter item description" required></textarea>
+                        <label for="itemDescription" class="text-neon">Description</label>
+                        <textarea class="form-control" id="itemDescription" rows="3" placeholder="Enter item description" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-neon">Add Item</button>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Animated Background -->
+    
+    <!-- Background -->
     <div class="background"></div>
-
 </body>
 </html>
