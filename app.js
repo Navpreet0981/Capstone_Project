@@ -1,78 +1,102 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import pg from 'pg';
 
 const app = express();
 const port = 4000;
 
-//Memory Data
-let items = [
-    {
-      id: 1,
-      title: "Web Development",
-      content:
-        "JavaScript -> Node , Express, npm, EJS; SpringBoot, Tailwind",
-      time: "4 Hours",
-      date: "2025-1-30T10:00:00Z",
-    },
-    {
-      id: 2,
-      title: "App Development",
-      content: "Java, FireStore ",
-      time: "5 Hours",
-      date: "2024-12-07T14:30:00Z",
-    },
-    
-  ];
-  let lastId = 2;
 
+const db = new pg.Client({
+  user: "postgres",
+  host: "localhost",
+  database: "test1",
+  password: "116081",
+  port: 5432,
+});
+db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //Get all Items
-app.get("/items", (req, res) =>{
-    console.log(items);
-    res.json(items);
+app.get("/items", async (req, res) =>{
+  try{
+    const result = await db.query("SELECT * FROM to_do_list");
+    res.json(result.rows);
+  }catch(err){
+    console.error(err.message);
+    res.status(500).json({message: "Error Fetching Items"});
+  }
 });
 
 //Get Specific Item by id
-app.get("/items/:id" , (req , res) => {
-    const item = items.find((i) => i.id === parseInt(req.params.id));
-    if(!item) return res.status(404).json({message: "Post Not Found"});
-    res.json(item);
+app.get("/items/:id" , async (req , res) => {
+    try{
+      const result = await db.query("SELECT * FROM to_do_list WHERE id = $1",
+        [req.params.id,]);
+
+        if(result.rows.length === 0){
+          return res.status(404).json({message: "Item Not Found"});
+        }
+
+        res.json(result.rows[0]);
+    }catch(err){
+      res.status(500).json({message: "Error Fetching Item"});
+    }
 });
 
 //Post a new Item 
-app.post("/items", (req , res) =>{
-    const newId = lastId +1;
-    const item ={
-        id: newId,
-        title: req.body.title,
-        content: req.body.content,
-        time: req.body.time,
-        date: new Date(),
-    };
-    lastId = newId;
-    items.push(item);
-    res.status(201).json(item);
+app.post("/items", async (req , res) =>{
+   const {title, content, time} = req.body;
+   try{
+    const result = await db.query(
+      "INSERT INTO to_do_list (title, content, time) VALUES($1, $2, $3) RETURNING *",
+      [title, content, time]
+    );
+    res.status(201).json(result.rows[0]);
+   }catch(err){
+    console.error(err.message);
+    res.status(500).json({message: "Error Adding Item"});
+   }
 });
 
 // Patch a post when you just want to update one parameter
-app.patch("/items/:id", (req , res) =>{
-    const item = items.find((i) => i.id === parseInt(req.params.id));
-    if(!item) return res.status(404).json({message: "Item Not Exist"});
-    if(res.body.title) item.title = req.body.title;
-    if(res.body.content) item.content = req.body.content;
-    if(res.body.time) item.time = req.body.time;
-    res.json(item);
-})
+app.patch("/items/:id", async (req , res) =>{
+   const {title, content, time} = req.body;
+   try{
+    const result = await db.query(
+      `UPDATE to_do_list SET title = COALESCE($1,title),
+                            content = COALESCE($2,content),
+                            time = COALESCE($3,time)
+                            WHERE id = $4 RETURNING *`,
+                            [title, content, time, req.params.id]
+    );
+
+    if(result.rows.length === 0){
+      return res.status(404).json({message: "Item Not Found"});
+    }
+    res.json(result.rows[0]);
+   }catch(err){
+    console.error(err.message);
+    res.status(500).json({message: "Error Updating Item"});
+   }
+});
 
 //Delete
-app.delete("/items/:id", (req , res) => {
-    const index = items.findIndex((i) => i.id === parseInt(req.params.id));
-    if(index === -1) return res.status(404).json({message: "Item Bot Exist"});
-    items.splice(index, 1);
-    res.json({message: "Item Deleted"});
+app.delete("/items/:id", async (req , res) => {
+    try{
+      const result = await db.query(
+        "DELETE FROM to_do_list WHERE id = $1 RETURNING *",
+        [req.params.id]
+      );
+      if(result.rows.length === 0){
+        return res.status(404).json({message: "Item Not Found"});
+      }
+      res.json({message: "Item Deleted", deletedItem: result.rows[0]});
+    }catch(err){
+      console.error(err.message);
+      res.status(500).json({message: "Error Deleting Item"})
+    }
 });
   
 
